@@ -47,3 +47,5 @@ The application retrieves the last execution timestamp from a local file. Ensure
 ## License
 
 This project is licensed under the MIT License.
+# check-bs-map-plays
+Easily track plays on your Beat Saber custom maps
