@@ -1,7 +1,8 @@
 import { Difficulty } from './Difficulty';
 
 export interface Map {
-    mapId: number;
+    id: string;
+    name: string;
     mapperId: number;
     difficulties: Difficulty[];
     lastChecked: number; // Unix time

@@ -1,14 +1,6 @@
 import axios from 'axios';
-
-interface Map {
-    id: string;
-    name: string;
-}
-
-interface Play {
-    playerName: string;
-    score: number;
-}
+import { Map } from '../models/Map';
+import { Play } from '../models/Play';
 
 export async function fetchMapsByMapper(mapperId: string): Promise<Map[]> {
     const response = await axios.get(`https://api.beatleader.com/maps?mappers=${mapperId}`);
@@ -22,6 +14,5 @@ export async function fetchMapsByMapper(mapperId: string): Promise<Map[]> {
 
 export async function fetchPlays(mapId: string): Promise<number> {
     const response = await axios.get(`https://api.beatleader.com/leaderboard/${mapId}`);
-
     return response.data.plays;
 }

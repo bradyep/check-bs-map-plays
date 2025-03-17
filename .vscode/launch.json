@@ -7,8 +7,8 @@
             "request": "launch",
             "name": "Debug TypeScript",
             "preLaunchTask": "tsc: build - tsconfig.json",
-            "program": "${workspaceFolder}/node-console-app/dist/index.js",
-            "outFiles": ["${workspaceFolder}/node-console-app/dist/**/*.js"],
+            "program": "${workspaceFolder}/dist/index.js",
+            "outFiles": ["${workspaceFolder}/dist/**/*.js"],
             "sourceMaps": true
         }
     ]
