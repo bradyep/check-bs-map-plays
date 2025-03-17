@@ -1,5 +1,5 @@
 export interface Difficulty {
-    difficultyId: number;
+    difficultyId: string; // difficulty IDs are strings in the BL API 🤷
     difficultyName: string;
     modeName: string;
     plays: number;

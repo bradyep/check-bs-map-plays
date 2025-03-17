@@ -1,7 +1,7 @@
 import { Difficulty } from './Difficulty';
 
 export interface Map {
-    id: string;
+    id: string; // map IDs are strings in the BL API 🤷
     name: string;
     mapperId: number;
     difficulties: Difficulty[];
