@@ -1,10 +1,10 @@
-import { Difficulty } from './Difficulty';
+import { Leaderboard } from './Leaderboard';
 
 export interface Map {
-    id: string; // map IDs are strings in the BL API 🤷
+    id: string; // BeatSaver map IDs are hex
     name: string;
     mapperId: number;
-    difficulties: Difficulty[];
+    leaderboards: Leaderboard[];
     lastChecked: number; // Unix time
     totalPlays: number;
     upvotes: number;
