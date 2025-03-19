@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { Map } from '../models/Map';
 import { Leaderboard } from '../models/Leaderboard';
-// import { Play } from '../models/Play';
 
 export async function getMapsFromBeatSaver(mapperId: string): Promise<Map[]> {
     const response = await axios.get(`https://api.beatsaver.com/maps/uploader/${mapperId}/0`);
@@ -9,21 +8,27 @@ export async function getMapsFromBeatSaver(mapperId: string): Promise<Map[]> {
         id: map.id, // BeatSaver map ID
         name: map.name,
         mapperId: map.uploader.id,
-        /*
-        leaderboards: map.versions.flatMap((version: any) =>
-            version.diffs.map((diff: any) => ({
-                leaderboardId: `${map.id}-${diff.difficulty}`, // Generate a unique leaderboard ID
-                difficultyName: diff.difficulty,
-                modeName: diff.characteristic,
-                plays: 0 // Beat Saver does not provide play counts
-            }))
-        ) as Leaderboard[],
-        */
         lastChecked: Date.now(), // Set the current timestamp
-        // totalPlays: 0, // Beat Saver does not provide total play counts
         upvotes: map.stats.upvotes || 0,
-        downvotes: map.stats.downvotes || 0
+        downvotes: map.stats.downvotes || 0,
+        bsScore: map.stats.score || 0
     })) as Map[];
+}
+
+export async function getMapFromBeatSaver(mapId: string): Promise<Map> {
+    const response = await axios.get(`https://api.beatsaver.com/maps/id/${mapId}`);
+    const data = response.data;
+
+    return { 
+        id: data.id, // BeatSaver map ID
+        name: data.name,
+        mapperId: data.uploader.id,
+        leaderboards: [],
+        lastChecked: Date.now(), // Set the current timestamp
+        upvotes: data.stats.upvotes || 0,
+        downvotes: data.stats.downvotes || 0,
+        bsScore: data.stats.score || 0
+     }
 }
 
 export async function getLeaderboards(mapperId: string): Promise<Map[]> {
@@ -37,11 +42,8 @@ export async function getLeaderboards(mapperId: string): Promise<Map[]> {
             difficultyName: difficulty.difficultyName,
             modeName: difficulty.modeName,
             plays: difficulty.plays
-        })) as Leaderboard[], // Map difficulties to the Leaderboard interface
-        lastChecked: Date.now(), // Set a default value for lastChecked
-        totalPlays: map.difficulties.reduce((sum: number, difficulty: any) => sum + difficulty.plays, 0), // Sum up plays across all difficulties
-        upvotes: map.positiveVotes || 0, // Default to 0 if not provided
-        downvotes: map.negativeVotes || 0 // Default to 0 if not provided
+        })) as Leaderboard[],
+        lastChecked: Date.now(),
     })) as Map[];
 }
 
