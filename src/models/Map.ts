@@ -11,4 +11,5 @@ export interface Map {
     upvotes: number;
     downvotes: number;
     bsScore: number; // BeatSaver vote rating score
+    coverUrl?: string;
 }
