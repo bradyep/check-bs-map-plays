@@ -10,5 +10,5 @@ export interface Map {
     totalPlays?: number;
     upvotes: number;
     downvotes: number;
-    bsScore: number; // BeatSaver score
+    bsScore: number; // BeatSaver vote rating score
 }

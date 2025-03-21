@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Map } from '../models/Map';
 import { Leaderboard } from '../models/Leaderboard';
+import { Play } from '../models/Play';
 
 export async function getMapsFromBeatSaver(mapperId: number): Promise<Map[]> {
     const response = await axios.get(`https://api.beatsaver.com/maps/uploader/${mapperId}/0`);
@@ -51,15 +52,23 @@ export async function getLeaderboards(mapperId: number): Promise<Map[]> {
 }
 
 export async function getLeaderboardData(leaderboardId: string): Promise<Leaderboard> {
-    const response = await axios.get(`https://api.beatleader.com/leaderboard/${leaderboardId}`);
+    const response = await axios.get(`https://api.beatleader.com/leaderboard/${leaderboardId}?page=1&count=100&sortBy=date&order`);
+    const data = response.data;
 
-    const difficulty: Leaderboard = { 
-        leaderboardId: response.data.id,
-        mapId: response.data.song.id,
-        difficultyName: response.data.difficulty.difficultyName,
-        modeName: response.data.difficulty.modeName,
-        plays: response.data.plays
+    return { 
+        leaderboardId: data.id,
+        mapId: data.song.id,
+        difficultyName: data.difficulty.difficultyName,
+        modeName: data.difficulty.modeName,
+        playCount: data.plays,
+        recentPlays: data.scores.map((score: any) => ({
+            playerName: score.player.name,
+            accScore: score.accuracy,
+            modifiers: score.modifiers,
+            datePlayed: score.timepost,
+            scoreId: score.id,
+            playerTotalPp: score.player.pp || 0,
+            totalMistakes: (score.missedNotes || 0) + (score.badCuts || 0) + (score.bombCuts || 0) + (score.wallsHit || 0)
+        })) as Play[]
      }
-
-    return difficulty;
 }

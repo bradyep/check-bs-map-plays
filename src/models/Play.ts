@@ -1,9 +1,9 @@
 export interface Play {
     playerName: string;
     accScore: number;
-    modifiers: string[];
+    modifiers: string;
     datePlayed: number; // Unix time
-    replayUrl: string;
+    scoreId: string;
     playerTotalPp: number;
     totalMistakes: number;
 }
