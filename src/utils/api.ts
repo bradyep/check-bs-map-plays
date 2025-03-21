@@ -2,13 +2,14 @@ import axios from 'axios';
 import { Map } from '../models/Map';
 import { Leaderboard } from '../models/Leaderboard';
 
-export async function getMapsFromBeatSaver(mapperId: string): Promise<Map[]> {
+export async function getMapsFromBeatSaver(mapperId: number): Promise<Map[]> {
     const response = await axios.get(`https://api.beatsaver.com/maps/uploader/${mapperId}/0`);
     return response.data.docs.map((map: any) => ({
-        id: map.id, // BeatSaver map ID
+        id: map.id,
         name: map.name,
         mapperId: map.uploader.id,
-        lastChecked: Date.now(), // Set the current timestamp
+        mapperName: map.uploader.name,
+        lastChecked: Date.now(),
         upvotes: map.stats.upvotes || 0,
         downvotes: map.stats.downvotes || 0,
         bsScore: map.stats.score || 0
@@ -20,23 +21,25 @@ export async function getMapFromBeatSaver(mapId: string): Promise<Map> {
     const data = response.data;
 
     return { 
-        id: data.id, // BeatSaver map ID
+        id: data.id,
         name: data.name,
         mapperId: data.uploader.id,
+        mapperName: data.uploader.name,
         leaderboards: [],
-        lastChecked: Date.now(), // Set the current timestamp
+        lastChecked: Date.now(),
         upvotes: data.stats.upvotes || 0,
         downvotes: data.stats.downvotes || 0,
         bsScore: data.stats.score || 0
      }
 }
 
-export async function getLeaderboards(mapperId: string): Promise<Map[]> {
+export async function getLeaderboards(mapperId: number): Promise<Map[]> {
     const response = await axios.get(`https://api.beatleader.com/maps?mappers=${mapperId}`);
     return response.data.data.map((map: any) => ({
-        id: map.id, // Set the Map's id property
+        id: map.id,
         name: map.name,
         mapperId: map.mapperId,
+        mapperName: map.mapper,
         leaderboards: map.difficulties.map((difficulty: any) => ({
             leaderboardId: difficulty.leaderboardId,
             difficultyName: difficulty.difficultyName,

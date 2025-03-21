@@ -2,9 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import { getLeaderboardData, getLeaderboards, getMapsFromBeatSaver, getMapFromBeatSaver } from './utils/api';
 import { Leaderboard } from './models/Leaderboard';
+import { Mapper } from './models/Mapper';
 
-const LAST_EXECUTION_FILE = path.join(__dirname, 'lastExecution.txt');
-const MAPPER_ID = '132909'; // Replace with the actual mapper ID
+const MAPPER_ID: number = 132909; // TODO: Get this from JSON or console input
+const UNKNOWN_MAPPER_NAME = 'Unknown Mapper'
 
 async function main() {
     // Fetch maps from Beat Saver
@@ -15,7 +16,9 @@ async function main() {
     const beatLeaderMaps = await getLeaderboards(MAPPER_ID);
     console.log('Number of maps from Beat Leader:', beatLeaderMaps.length);
 
+    let mapperName: string = UNKNOWN_MAPPER_NAME;
     for (const blMap of beatLeaderMaps) {
+        if (mapperName === UNKNOWN_MAPPER_NAME) { mapperName = blMap.mapperName; }
         let matchingBeatSaverMap = beatSaverMaps.find((beatSaverMap) => beatSaverMap.id === blMap.id);
 
         if (!matchingBeatSaverMap) {
@@ -46,14 +49,14 @@ async function main() {
         }
     }
 
-    console.log('Maps:', JSON.stringify(beatSaverMaps));
+    const mapper: Mapper = {
+        mapperId: MAPPER_ID,
+        mapperName: mapperName,
+        maps: beatSaverMaps
+    };
+
+    console.log('Mapper:', JSON.stringify(mapper));
     // console.log('Maps:', beatSaverMaps);
-
-    updateLastExecutionTimestamp();
-}
-
-function updateLastExecutionTimestamp(): void {
-    fs.writeFileSync(LAST_EXECUTION_FILE, new Date().toISOString());
 }
 
 main().catch((err) => {

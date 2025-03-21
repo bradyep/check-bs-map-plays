@@ -4,6 +4,7 @@ export interface Map {
     id: string; // BeatSaver map IDs are hex
     name: string;
     mapperId: number;
+    mapperName: string;
     leaderboards: Leaderboard[];
     lastChecked?: number; // Unix time
     totalPlays?: number;
