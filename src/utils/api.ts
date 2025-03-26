@@ -3,8 +3,11 @@ import { Map } from '../models/Map';
 import { Leaderboard } from '../models/Leaderboard';
 import { Play } from '../models/Play';
 
+const BEAT_SAVER_API = 'https://api.beatsaver.com';
+const BEAT_LEADER_API = 'https://api.beatleader.com';
+
 export async function getMapsFromBeatSaver(mapperId: number): Promise<Map[]> {
-    const response = await axios.get(`https://api.beatsaver.com/maps/uploader/${mapperId}/0`);
+    const response = await axios.get(`${BEAT_SAVER_API}/maps/uploader/${mapperId}/0`);
     return response.data.docs.map((map: any) => ({
         id: map.id,
         name: map.name,
@@ -18,7 +21,7 @@ export async function getMapsFromBeatSaver(mapperId: number): Promise<Map[]> {
 }
 
 export async function getMapFromBeatSaver(mapId: string): Promise<Map> {
-    const response = await axios.get(`https://api.beatsaver.com/maps/id/${mapId}`);
+    const response = await axios.get(`${BEAT_SAVER_API}/maps/id/${mapId}`);
     const data = response.data;
 
     return { 
@@ -35,7 +38,7 @@ export async function getMapFromBeatSaver(mapId: string): Promise<Map> {
 }
 
 export async function getLeaderboards(mapperId: number): Promise<Map[]> {
-    const response = await axios.get(`https://api.beatleader.com/maps?mappers=${mapperId}`);
+    const response = await axios.get(`${BEAT_LEADER_API}/maps?mappers=${mapperId}`);
     return response.data.data.map((map: any) => ({
         id: map.id,
         name: map.name,
@@ -52,7 +55,7 @@ export async function getLeaderboards(mapperId: number): Promise<Map[]> {
 }
 
 export async function getLeaderboardData(leaderboardId: string): Promise<Leaderboard> {
-    const response = await axios.get(`https://api.beatleader.com/leaderboard/${leaderboardId}?page=1&count=100&sortBy=date&order`);
+    const response = await axios.get(`${BEAT_LEADER_API}/leaderboard/${leaderboardId}?page=1&count=100&sortBy=date&order`);
     const data = response.data;
 
     return { 

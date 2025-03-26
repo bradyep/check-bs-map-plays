@@ -1,14 +1,21 @@
 import fs from 'fs';
 import path from 'path';
 import { getLeaderboardData, getLeaderboards, getMapsFromBeatSaver, getMapFromBeatSaver } from './utils/api';
+import { getLastReportFile } from './utils/file';
 import { Leaderboard } from './models/Leaderboard';
-// import { Mapper } from './models/Mapper';
 import { Report } from './models/Report';
 
 const MAPPER_ID: number = 132909; // TODO: Get this from JSON or console input
 const UNKNOWN_MAPPER_NAME = 'Unknown Mapper';
+const SAVED_REPORT_FILE = 'map-play-report.json';
 
 async function main() {
+    // Try to load in last generated report file
+    const reportFilePath = path.join(__dirname, SAVED_REPORT_FILE);
+    let lastReport = await getLastReportFile(reportFilePath);
+    console.log('Last report:', lastReport);
+
+    // Fetch maps
     const beatSaverMaps = await getMapsFromBeatSaver(MAPPER_ID);
     const beatLeaderMaps = await getLeaderboards(MAPPER_ID);
     console.log(`${beatLeaderMaps.length} maps from Beat Leader | ${beatSaverMaps.length} maps from Beat Saver`);
@@ -57,10 +64,8 @@ async function main() {
         generatedDate: Date.now()
     };
 
-    // Serialize the report object into a JSON file
-    const reportFilePath = path.join(__dirname, 'map-play-report.json');
     fs.writeFileSync(reportFilePath, JSON.stringify(report, null, 2), 'utf-8');
-    console.log(`Report saved to ${reportFilePath}`);
+    console.log(`Report saved to: ${reportFilePath}`);
 }
 
 main().catch((err) => {
