@@ -6,5 +6,8 @@ export interface Leaderboard {
     difficultyName: string;
     modeName: string;
     playCount: number;
+    // Only used for generated HTML reports
+    playCountWhenLastChecked?: number;
+    // Collections
     recentPlays: Play[];
 }

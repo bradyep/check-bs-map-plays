@@ -4,15 +4,16 @@ import { getLeaderboardData, getLeaderboards, getMapsFromBeatSaver, getMapFromBe
 import { getLastReportFile } from './utils/file';
 import { Leaderboard } from './models/Leaderboard';
 import { Report } from './models/Report';
+import { Map } from './models/Map';
 
 const MAPPER_ID: number = 132909; // TODO: Get this from JSON or console input
 const UNKNOWN_MAPPER_NAME = 'Unknown Mapper';
 const SAVED_REPORT_FILE = 'map-play-report.json';
+const REPORT_FILE_PATH = path.join(__dirname, SAVED_REPORT_FILE);
 
 async function main() {
-    // Try to load in last generated report file
-    const reportFilePath = path.join(__dirname, SAVED_REPORT_FILE);
-    let lastReport = await getLastReportFile(reportFilePath);
+    // Load last generated report file for mappers and differences
+    let lastReport = await getLastReportFile(REPORT_FILE_PATH);
     console.log('Last report:', lastReport);
 
     // Fetch maps
@@ -44,9 +45,37 @@ async function main() {
                 }
             }
         }
+        blMap.id = matchingBeatSaverMap.id;
+
+        let currentReportMap: Map | undefined = undefined;
+        // Check for differences in map plays/upvotes/downvotes/bsScore
+        if (lastReport) {
+            const currentReportMapper = lastReport.mappers.find((mapper) => mapper.mapperId === MAPPER_ID);
+            if (currentReportMapper) {
+                currentReportMap = currentReportMapper.maps.find((map) => map.id === blMap.id);
+                if (currentReportMap) {
+                    matchingBeatSaverMap.totalPlaysWhenLastChecked = currentReportMap.totalPlays;
+                    matchingBeatSaverMap.upvotesWhenLastChecked = currentReportMap.upvotes;
+                    matchingBeatSaverMap.downvotesWhenLastChecked = currentReportMap.downvotes;
+                    matchingBeatSaverMap.bsScoreWhenLastChecked = currentReportMap.bsScore;
+                } else {
+                    console.log('Could not find this map id in report: ' + blMap.id);
+                }
+            } else {
+                console.log('Could not find this mapper id in report: ' + MAPPER_ID);
+            }
+        }
 
         for (const leaderboard of blMap.leaderboards) {
             const leaderboardData: Leaderboard = await getLeaderboardData(leaderboard.leaderboardId);
+
+            // Check for differences in play count
+            if (currentReportMap) {
+                const currentReportLeaderboard = currentReportMap.leaderboards.find((lb) => lb.leaderboardId === leaderboard.leaderboardId);
+                if (currentReportLeaderboard) {
+                    leaderboardData.playCountWhenLastChecked = currentReportLeaderboard.playCount;
+                }
+            }
 
             matchingBeatSaverMap.leaderboards = matchingBeatSaverMap.leaderboards || [];
             matchingBeatSaverMap.leaderboards.push(leaderboardData);
@@ -64,8 +93,8 @@ async function main() {
         generatedDate: Date.now()
     };
 
-    fs.writeFileSync(reportFilePath, JSON.stringify(report, null, 2), 'utf-8');
-    console.log(`Report saved to: ${reportFilePath}`);
+    fs.writeFileSync(REPORT_FILE_PATH, JSON.stringify(report, null, 2), 'utf-8');
+    console.log(`Report saved to: ${REPORT_FILE_PATH}`);
 }
 
 main().catch((err) => {

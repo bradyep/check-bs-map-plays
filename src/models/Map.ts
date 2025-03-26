@@ -5,11 +5,17 @@ export interface Map {
     name: string;
     mapperId: number;
     mapperName: string;
-    leaderboards: Leaderboard[];
-    lastChecked?: number; // Unix time
+    coverUrl?: string;
+    // lastChecked?: number; // Unix time
     totalPlays?: number;
     upvotes: number;
     downvotes: number;
-    bsScore: number; // BeatSaver vote rating score
-    coverUrl?: string;
+    bsScore?: number; // BeatSaver vote rating score
+    // Only used for generated HTML reports
+    totalPlaysWhenLastChecked?: number;
+    upvotesWhenLastChecked?: number;
+    downvotesWhenLastChecked?: number;
+    bsScoreWhenLastChecked?: number;
+    // Collections
+    leaderboards: Leaderboard[];
 }

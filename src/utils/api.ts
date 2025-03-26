@@ -13,7 +13,7 @@ export async function getMapsFromBeatSaver(mapperId: number): Promise<Map[]> {
         name: map.name,
         mapperId: map.uploader.id,
         mapperName: map.uploader.name,
-        lastChecked: Date.now(),
+        // lastChecked: Date.now(),
         upvotes: map.stats.upvotes || 0,
         downvotes: map.stats.downvotes || 0,
         bsScore: map.stats.score || 0
@@ -30,7 +30,7 @@ export async function getMapFromBeatSaver(mapId: string): Promise<Map> {
         mapperId: data.uploader.id,
         mapperName: data.uploader.name,
         leaderboards: [],
-        lastChecked: Date.now(),
+        // lastChecked: Date.now(),
         upvotes: data.stats.upvotes || 0,
         downvotes: data.stats.downvotes || 0,
         bsScore: data.stats.score || 0
@@ -50,7 +50,7 @@ export async function getLeaderboards(mapperId: number): Promise<Map[]> {
             modeName: difficulty.modeName,
             plays: difficulty.plays
         })) as Leaderboard[],
-        lastChecked: Date.now(),
+        // lastChecked: Date.now(),
     })) as Map[];
 }
 
