@@ -1,15 +1,17 @@
 import fs from 'fs';
 import path from 'path';
 import { getLeaderboardData, getLeaderboards, getMapsFromBeatSaver, getMapFromBeatSaver } from './utils/api';
-import { getLastReportFile } from './utils/file';
+import { getLastReportFile, generateHtmlReport } from './utils/file';
 import { Leaderboard } from './models/Leaderboard';
 import { Report } from './models/Report';
 import { Map } from './models/Map';
 import { removeNonHex } from './utils/string';
 
 const UNKNOWN_MAPPER_NAME = 'Unknown Mapper';
-const SAVED_REPORT_FILE = 'map-play-report.json';
-const REPORT_FILE_PATH = path.join(__dirname, SAVED_REPORT_FILE);
+const SAVED_REPORT_FILE_NAME = 'map-play-report.json';
+const HTML_REPORT_FILE_NAME = 'map-play-report.html';
+const REPORT_FILE_PATH = path.join(__dirname, SAVED_REPORT_FILE_NAME);
+const HTML_REPORT_FILE = path.join(__dirname, HTML_REPORT_FILE_NAME);
 
 async function main() {
     // Load last generated report file for mappers and differences
@@ -30,7 +32,8 @@ async function main() {
         // Fetch maps
         const beatSaverMaps = await getMapsFromBeatSaver(mapperId);
         const beatLeaderMaps = await getLeaderboards(mapperId);
-        console.log(`${beatLeaderMaps.length} maps from Beat Leader | ${beatSaverMaps.length} maps from Beat Saver`);
+        console.log(`${beatSaverMaps.length} maps from Beat Saver: ` + beatSaverMaps.map((map) => map.id).join(', '));
+        console.log(`${beatLeaderMaps.length} maps from Beat Leader: ` + beatLeaderMaps.map((map) => map.id).join(', '));
 
         let mapperName: string = UNKNOWN_MAPPER_NAME;
         for (const blMap of beatLeaderMaps) {
@@ -38,6 +41,7 @@ async function main() {
                 mapperName = blMap.mapperName;
             }
             const nonHexId = removeNonHex(blMap.id);
+            console.log(`Processing blMap.id: ${blMap.id} | nonHexId: ${nonHexId}`);
             let matchingBeatSaverMap = beatSaverMaps.find((beatSaverMap) => beatSaverMap.id === nonHexId);
 
             if (!matchingBeatSaverMap) {
@@ -74,11 +78,12 @@ async function main() {
                 }
             }
 
+            console.log(`blMap.leaderboards.length: ${blMap.leaderboards.length}`);
             for (const leaderboard of blMap.leaderboards) {
                 const leaderboardData: Leaderboard = await getLeaderboardData(leaderboard.leaderboardId);
 
                 // Check for differences in play count
-                if (currentReportMap) {
+                if (currentReportMap && currentReportMap.leaderboards) {
                     const currentReportLeaderboard = currentReportMap.leaderboards.find((lb) => lb.leaderboardId === leaderboard.leaderboardId);
                     if (currentReportLeaderboard) {
                         leaderboardData.playCountWhenLastChecked = currentReportLeaderboard.playCount;
@@ -86,14 +91,14 @@ async function main() {
                         console.log('Leaderboard last checked play count will be null since we could not find this leaderboard id in report: ' + leaderboard.leaderboardId);
                     }
                 } else {
-                    console.log('Leaderboard last checked play count will be null since we could not find this map id in report: ' + blMap.id);
+                    console.log('Leaderboard last checked play count will be null since we could not find this map id in report (or it didnt have leaderboards): ' + blMap.id);
                 }
 
                 matchingBeatSaverMap.leaderboards = matchingBeatSaverMap.leaderboards || [];
                 matchingBeatSaverMap.leaderboards.push(leaderboardData);
                 matchingBeatSaverMap.totalPlays = matchingBeatSaverMap.leaderboards.reduce((sum: number, lb: Leaderboard) => sum + lb.playCount, 0);
             }
-        }
+        } // for (const blMap of beatLeaderMaps) {
 
         allMappersData.push({
             mapperId: mapperId,
@@ -108,8 +113,14 @@ async function main() {
         generatedDate: Date.now()
     };
 
+    // Write JSON report
     fs.writeFileSync(REPORT_FILE_PATH, JSON.stringify(report, null, 2), 'utf-8');
     console.log(`Report saved to: ${REPORT_FILE_PATH}`);
+
+    // Generate HTML report
+    const htmlContent = generateHtmlReport(report);
+    fs.writeFileSync(HTML_REPORT_FILE, htmlContent, 'utf-8');
+    console.log(`HTML report saved to: ${HTML_REPORT_FILE}`);
 }
 
 main().catch((err) => {
