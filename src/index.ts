@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { getLeaderboardData, getLeaderboards, getMapsFromBeatSaver, getMapFromBeatSaver } from './utils/api';
+import { getLeaderboardData, getLeaderboards, getMapsFromBeatSaver} from './utils/api';
 import { getLastReportFile, generateHtmlReport } from './utils/file';
 import { Leaderboard } from './models/Leaderboard';
 import { Report } from './models/Report';
@@ -37,27 +37,19 @@ async function main() {
 
         let mapperName: string = UNKNOWN_MAPPER_NAME;
         for (const blMap of beatLeaderMaps) {
-            if (mapperName === UNKNOWN_MAPPER_NAME) {
-                mapperName = blMap.mapperName;
-            }
             const nonHexId = removeNonHex(blMap.id);
             console.log(`Processing blMap.id: ${blMap.id} | nonHexId: ${nonHexId}`);
             let matchingBeatSaverMap = beatSaverMaps.find((beatSaverMap) => beatSaverMap.id === nonHexId);
 
             if (!matchingBeatSaverMap) {
-                // Most likely a collaboration map, make separate BeatSaber API call to get votes
-                const beatSaverMap = await getMapFromBeatSaver(nonHexId);
-                if (!beatSaverMap) {
-                    console.log('No BeatSaver map found for id: ' + nonHexId + ' throwing in the towel');
-                    continue; // Nothing more we can do
-                } else {
-                    console.log('Found likely collab map with id: ' + nonHexId + ' from BeatSaver API');
-                    matchingBeatSaverMap = beatSaverMap;
-                    beatSaverMaps.push(matchingBeatSaverMap);
-                }
+                console.log('No matching BeatSaver map found for id: ' + nonHexId + ', this should not happen. Throwing in the towel');
+                continue; // Nothing more we can do
             }
 
             blMap.id = matchingBeatSaverMap.id;
+            if (mapperName === UNKNOWN_MAPPER_NAME) {
+                mapperName = matchingBeatSaverMap.mapperName;
+            }
 
             let currentReportMap: Map | undefined = undefined;
             // Check for differences in map plays/upvotes/downvotes/bsScore
@@ -71,29 +63,28 @@ async function main() {
                         matchingBeatSaverMap.downvotesWhenLastChecked = currentReportMap.downvotes;
                         matchingBeatSaverMap.bsScoreWhenLastChecked = currentReportMap.bsScore;
                     } else {
-                        console.log('Map lastChecked values will be null since we could not find this map id in report: ' + blMap.id);
+                        console.log('Map lastChecked values will be undefined since we could not find this map id in report: ' + blMap.id);
                     }
                 } else {
-                    console.log('Map lastChecked values will be null since we could not find this mapper id in report: ' + mapperId);
+                    console.log('Map lastChecked values will be undefined since we could not find this mapper id in report: ' + mapperId);
                 }
             }
 
             console.log(`blMap.leaderboards.length: ${blMap.leaderboards.length}`);
             for (const leaderboard of blMap.leaderboards) {
                 const leaderboardData: Leaderboard = await getLeaderboardData(leaderboard.leaderboardId);
-
                 // Check for differences in play count
                 if (currentReportMap && currentReportMap.leaderboards) {
                     const currentReportLeaderboard = currentReportMap.leaderboards.find((lb) => lb.leaderboardId === leaderboard.leaderboardId);
                     if (currentReportLeaderboard) {
                         leaderboardData.playCountWhenLastChecked = currentReportLeaderboard.playCount;
                     } else {
-                        console.log('Leaderboard last checked play count will be null since we could not find this leaderboard id in report: ' + leaderboard.leaderboardId);
+                        console.log('Leaderboard last checked play count will be undefined since we could not find this leaderboard id in report: ' + leaderboard.leaderboardId);
                     }
                 } else {
-                    console.log('Leaderboard last checked play count will be null since we could not find this map id in report (or it didnt have leaderboards): ' + blMap.id);
+                    console.log('Leaderboard last checked play count will be undefined since we could not find this map id in report (or it didnt have leaderboards): ' + blMap.id);
                 }
-
+                // Populate leaderboard data of matchingBeatSaverMap
                 matchingBeatSaverMap.leaderboards = matchingBeatSaverMap.leaderboards || [];
                 matchingBeatSaverMap.leaderboards.push(leaderboardData);
                 matchingBeatSaverMap.totalPlays = matchingBeatSaverMap.leaderboards.reduce((sum: number, lb: Leaderboard) => sum + lb.playCount, 0);
@@ -117,7 +108,7 @@ async function main() {
     fs.writeFileSync(REPORT_FILE_PATH, JSON.stringify(report, null, 2), 'utf-8');
     console.log(`Report saved to: ${REPORT_FILE_PATH}`);
 
-    // Generate HTML report
+    // Write HTML report
     const htmlContent = generateHtmlReport(report);
     fs.writeFileSync(HTML_REPORT_FILE, htmlContent, 'utf-8');
     console.log(`HTML report saved to: ${HTML_REPORT_FILE}`);

@@ -7,34 +7,17 @@ const BEAT_SAVER_API = 'https://api.beatsaver.com';
 const BEAT_LEADER_API = 'https://api.beatleader.com';
 
 export async function getMapsFromBeatSaver(mapperId: number): Promise<Map[]> {
-    const response = await axios.get(`${BEAT_SAVER_API}/maps/uploader/${mapperId}/0`);
+    const response = await axios.get(`${BEAT_SAVER_API}/maps/collaborations/${mapperId}?pageSize=100`);
     return response.data.docs.map((map: any) => ({
         id: map.id,
         name: map.name,
         mapperId: map.uploader.id,
-        mapperName: map.uploader.name,
+        mapperName: map.collaborators?.find((c: { id: number }) => c.id === mapperId)?.name || map.uploader.name,
         upvotes: map.stats.upvotes || 0,
         downvotes: map.stats.downvotes || 0,
         bsScore: map.stats.score || 0,
         coverUrl: map.versions?.[0]?.coverURL ?? undefined
     })) as Map[];
-}
-
-export async function getMapFromBeatSaver(mapId: string): Promise<Map> {
-    const response = await axios.get(`${BEAT_SAVER_API}/maps/id/${mapId}`);
-    const data = response.data;
-
-    return { 
-        id: data.id,
-        name: data.name,
-        mapperId: data.uploader.id,
-        mapperName: data.uploader.name,
-        leaderboards: [],
-        upvotes: data.stats.upvotes || 0,
-        downvotes: data.stats.downvotes || 0,
-        bsScore: data.stats.score || 0,
-        coverUrl: data.versions?.[0]?.coverURL ?? undefined
-     }
 }
 
 export async function getLeaderboards(mapperId: number): Promise<Map[]> {
