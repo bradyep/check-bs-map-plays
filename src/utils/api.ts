@@ -15,7 +15,8 @@ export async function getMapsFromBeatSaver(mapperId: number): Promise<Map[]> {
         mapperName: map.uploader.name,
         upvotes: map.stats.upvotes || 0,
         downvotes: map.stats.downvotes || 0,
-        bsScore: map.stats.score || 0
+        bsScore: map.stats.score || 0,
+        coverUrl: map.versions?.[0]?.coverURL ?? undefined
     })) as Map[];
 }
 
@@ -31,7 +32,8 @@ export async function getMapFromBeatSaver(mapId: string): Promise<Map> {
         leaderboards: [],
         upvotes: data.stats.upvotes || 0,
         downvotes: data.stats.downvotes || 0,
-        bsScore: data.stats.score || 0
+        bsScore: data.stats.score || 0,
+        coverUrl: data.versions?.[0]?.coverURL ?? undefined
      }
 }
 

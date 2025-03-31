@@ -70,9 +70,25 @@ export function generateHtmlReport(report: Report): string {
       border-radius: 8px;
       background-color: #0d1117;
     }
+    .map-details {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .map-info {
+      flex: 1;
+    }
     .map h3 {
       margin-top: 0;
       color: #79c0ff;
+    }
+    .map img {
+      max-width: 150px;
+      max-height: 150px;
+      border-radius: 8px;
+      border: 1px solid #30363d;
+      float: right;
     }
     .leaderboard {
       margin-top: 1rem;
@@ -80,6 +96,8 @@ export function generateHtmlReport(report: Report): string {
       border: 1px solid #30363d;
       border-radius: 8px;
       background-color: #161b22;
+      width: 100%;
+      box-sizing: border-box;
     }
     .leaderboard h4 {
       margin: 0;
@@ -104,23 +122,28 @@ export function generateHtmlReport(report: Report): string {
         <h2>Mapper: ${mapper.mapperName}</h2>
         ${mapper.maps.map(map => `
           <div class="map">
-            <h3>Map: ${map.name}</h3>
-            <p><strong>Upvotes:</strong> ${map.upvotes}</p>
-            <p><strong>Downvotes:</strong> ${map.downvotes}</p>
-            <p><strong>BS Score:</strong> ${map.bsScore}</p>
-            <p><strong>Total Plays:</strong> ${map.totalPlays}</p>
-            ${map.leaderboards.map(leaderboard => `
-              <div class="leaderboard">
-                <h4>Leaderboard: ${leaderboard.difficultyName} - ${leaderboard.modeName}</h4>
-                <p><strong>Play Count:</strong> ${leaderboard.playCount}</p>
-                <div class="recent-plays">
-                  <h5>Recent Plays:</h5>
-                  ${leaderboard.recentPlays.map(play => `
-                    <p><strong>Player:</strong> ${play.playerName || 'Unknown'} | <strong>Mistakes:</strong> ${play.totalMistakes}</p>
-                  `).join('')}
-                </div>
+            <div class="map-details">
+              <div class="map-info">
+                ${map.coverUrl ? `<img src="${map.coverUrl}" alt="Cover for ${map.name}">` : ''}
+                <h3>Map: ${map.name}</h3>
+                <p><strong>Upvotes:</strong> ${map.upvotes}</p>
+                <p><strong>Downvotes:</strong> ${map.downvotes}</p>
+                <p><strong>BS Score:</strong> ${map.bsScore}</p>
+                <p><strong>Total Plays:</strong> ${map.totalPlays}</p>
+                ${map.leaderboards.map(leaderboard => `
+                  <div class="leaderboard">
+                    <h4>Leaderboard: ${leaderboard.difficultyName} - ${leaderboard.modeName}</h4>
+                    <p><strong>Play Count:</strong> ${leaderboard.playCount}</p>
+                    <div class="recent-plays">
+                      <h5>Recent Plays:</h5>
+                      ${leaderboard.recentPlays.map(play => `
+                        <p><strong>Player:</strong> ${play.playerName || 'Unknown'} | <strong>Mistakes:</strong> ${play.totalMistakes}</p>
+                      `).join('')}
+                    </div>
+                  </div>
+                `).join('')}
               </div>
-            `).join('')}
+            </div>
           </div>
         `).join('')}
       </div>
