@@ -90,6 +90,14 @@ export function generateHtmlReport(report: Report): string {
       border: 1px solid #30363d;
       float: right;
     }
+    td.replayCell {
+      display: flex;
+      justify-content: center;
+    }
+    .replayIcon {
+      width: 1.6em;
+      height: 1.6em;
+    }
     .leaderboard {
       margin-top: 1rem;
       padding: 0.5rem;
@@ -109,8 +117,22 @@ export function generateHtmlReport(report: Report): string {
       background-color: #0d1117;
       border-radius: 8px;
     }
-    .recent-plays p {
-      margin: 0.2rem 0;
+    .recent-plays table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+    .recent-plays th, .recent-plays td {
+      border: 1px solid #30363d;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    .recent-plays th {
+      background-color: #161b22;
+      color: #f0f6fc;
+    }
+    .recent-plays td {
+      background-color: #0d1117;
     }
   </style>
 </head>
@@ -136,9 +158,34 @@ export function generateHtmlReport(report: Report): string {
                     <p><strong>Play Count:</strong> ${leaderboard.playCount}</p>
                     <div class="recent-plays">
                       <h5>Recent Plays:</h5>
-                      ${leaderboard.recentPlays.map(play => `
-                        <p><strong>Player:</strong> ${play.playerName || 'Unknown'} | <strong>Mistakes:</strong> ${play.totalMistakes}</p>
-                      `).join('')}
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Player (Total PP)</th>
+                            <th>Accuracy</th>
+                            <th>Modifiers</th>
+                            <th>Total Mistakes</th>
+                            <th>Date Played</th>
+                            <th>Replay</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          ${leaderboard.recentPlays.map(play => `
+                            <tr>
+                              <td>${play.playerName || 'Unknown'} (${Math.round(play.playerTotalPp)})</td>
+                              <td>${(play.accScore * 100).toFixed(2)}</td>
+                              <td>${play.modifiers || ''}</td>
+                              <td>${play.totalMistakes}</td>
+                              <td>${new Date(play.datePlayed * 1000).toLocaleString()}</td>
+                              <td class="replayCell">
+                                <a href="https://replay.beatleader.com/?scoreId=${play.scoreId}" target="_blank">
+                                  <img src="./images/replays.svg" class="replayIcon"></img>
+                                </a>
+                              </td>
+                            </tr>
+                          `).join('')}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 `).join('')}

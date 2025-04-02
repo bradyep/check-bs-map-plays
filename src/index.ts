@@ -11,7 +11,7 @@ const UNKNOWN_MAPPER_NAME = 'Unknown Mapper';
 const SAVED_REPORT_FILE_NAME = 'map-play-report.json';
 const HTML_REPORT_FILE_NAME = 'map-play-report.html';
 const REPORT_FILE_PATH = path.join(__dirname, SAVED_REPORT_FILE_NAME);
-const HTML_REPORT_FILE = path.join(__dirname, HTML_REPORT_FILE_NAME);
+const HTML_REPORT_FILE_PATH = path.join(__dirname, HTML_REPORT_FILE_NAME);
 
 async function main() {
     // Load last generated report file for mappers and differences
@@ -110,8 +110,8 @@ async function main() {
 
     // Write HTML report
     const htmlContent = generateHtmlReport(report);
-    fs.writeFileSync(HTML_REPORT_FILE, htmlContent, 'utf-8');
-    console.log(`HTML report saved to: ${HTML_REPORT_FILE}`);
+    fs.writeFileSync(HTML_REPORT_FILE_PATH, htmlContent, 'utf-8');
+    console.log(`HTML report saved to: ${HTML_REPORT_FILE_PATH}`);
 }
 
 main().catch((err) => {
