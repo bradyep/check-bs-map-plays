@@ -98,6 +98,27 @@ async function main() {
         });
     } // for (const mapperId of mapperIdsToTrack) {
 
+    // Define the sorting order for difficultyName
+    const difficultyOrder = ["ExpertPlus", "Expert", "Hard", "Normal", "Easy"];
+
+    // Add this sorting logic before writing the JSON and HTML reports
+    for (const mapperData of allMappersData) {
+        for (const map of mapperData.maps) {
+            if (map.leaderboards) {
+                map.leaderboards.sort((a, b) => {
+                    const indexA = difficultyOrder.indexOf(a.difficultyName);
+                    const indexB = difficultyOrder.indexOf(b.difficultyName);
+
+                    // If difficultyName is not in the predefined order, place it after "Easy"
+                    const adjustedIndexA = indexA === -1 ? difficultyOrder.length : indexA;
+                    const adjustedIndexB = indexB === -1 ? difficultyOrder.length : indexB;
+
+                    return adjustedIndexA - adjustedIndexB;
+                });
+            }
+        }
+    }
+
     const report: Report = {
         mapperIdsToTrack: mapperIdsToTrack,
         mappers: allMappersData,
