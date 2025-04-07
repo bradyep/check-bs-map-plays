@@ -6,7 +6,7 @@ export interface Map {
     mapperId: number;
     mapperName: string;
     coverUrl?: string;
-    // lastChecked?: number; // Unix time
+    lastChecked: number; // Unix time
     totalPlays?: number;
     upvotes: number;
     downvotes: number;

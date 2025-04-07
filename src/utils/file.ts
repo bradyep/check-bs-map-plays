@@ -137,7 +137,7 @@ export function generateHtmlReport(report: Report): string {
   </style>
 </head>
 <body>
-  <header>Map Play Report</header>
+  <header>Map Play Report (Last Report: ${new Date(report.generatedDate).toLocaleString()})</header>
   <div class="container">
     ${report.mappers.map(mapper => `
       <div class="mapper">
@@ -147,15 +147,15 @@ export function generateHtmlReport(report: Report): string {
             <div class="map-details">
               <div class="map-info">
                 ${map.coverUrl ? `<img src="${map.coverUrl}" alt="Cover for ${map.name}">` : ''}
-                <h3>Map: ${map.name}</h3>
-                <p><strong>Upvotes:</strong> ${map.upvotes}</p>
-                <p><strong>Downvotes:</strong> ${map.downvotes}</p>
-                <p><strong>BS Score:</strong> ${map.bsScore}</p>
-                <p><strong>Total Plays:</strong> ${map.totalPlays}</p>
+                <h3>Map: ${map.name} (Last Checked: ${new Date(map.lastChecked).toLocaleString()})</h3>
+                <p><strong>Upvotes:</strong> ${map.upvotes} (Old Value: ${map.upvotesWhenLastChecked})</p>
+                <p><strong>Downvotes:</strong> ${map.downvotes} (Old Value: ${map.downvotesWhenLastChecked})</p>
+                <p><strong>BS Score:</strong> ${map.bsScore} (Old Value: ${map.bsScoreWhenLastChecked})</p>
+                <p><strong>Total Plays:</strong> ${map.totalPlays} (Old Value: ${map.totalPlaysWhenLastChecked})</p>
                 ${map.leaderboards.map(leaderboard => `
                   <div class="leaderboard">
                     <h4>Leaderboard: ${leaderboard.difficultyName} - ${leaderboard.modeName}</h4>
-                    <p><strong>Play Count:</strong> ${leaderboard.playCount}</p>
+                    <p><strong>Total Play Count:</strong> ${leaderboard.playCount} (Old Value: ${leaderboard.playCountWhenLastChecked})</p>
                     <div class="recent-plays">
                       <h5>Recent Plays:</h5>
                       <table>
