@@ -1,11 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 import { getLeaderboardData, getLeaderboards, getMapsFromBeatSaver } from './utils/api';
-import { getLastReportFile, generateHtmlReport } from './utils/file';
+import { getLastReportFile, generateHtmlReport, generateJsonReport } from './utils/file';
+import { sortMapDifficulties } from './utils/map-data';
 import { Leaderboard } from './models/Leaderboard';
 import { Report } from './models/Report';
 import { Map } from './models/Map';
 import { Play } from './models/Play';
+import { Mapper } from './models/Mapper';
 import { removeNonHex } from './utils/string';
 
 const UNKNOWN_MAPPER_NAME = 'Unknown Mapper';
@@ -25,7 +27,7 @@ async function main() {
     }
 
     const mapperIdsToTrack = lastReport.mapperIdsToTrack;
-    const allMappersData = [];
+    const allMappersData: Mapper[] = [];
 
     for (const mapperId of mapperIdsToTrack) {
         console.log(`Processing mapper ID: ${mapperId}`);
@@ -111,26 +113,8 @@ async function main() {
         });
     } // for (const mapperId of mapperIdsToTrack) {
 
-    // Define the sorting order for difficultyName
-    const difficultyOrder = ["ExpertPlus", "Expert", "Hard", "Normal", "Easy"];
-
-    // Add this sorting logic before writing the JSON and HTML reports
-    for (const mapperData of allMappersData) {
-        for (const map of mapperData.maps) {
-            if (map.leaderboards) {
-                map.leaderboards.sort((a, b) => {
-                    const indexA = difficultyOrder.indexOf(a.difficultyName);
-                    const indexB = difficultyOrder.indexOf(b.difficultyName);
-
-                    // If difficultyName is not in the predefined order, place it after "Easy"
-                    const adjustedIndexA = indexA === -1 ? difficultyOrder.length : indexA;
-                    const adjustedIndexB = indexB === -1 ? difficultyOrder.length : indexB;
-
-                    return adjustedIndexA - adjustedIndexB;
-                });
-            }
-        }
-    }
+    // Sort difficulties before writing the reports
+    sortMapDifficulties(allMappersData);
 
     const htmlReport: Report = {
         mapperIdsToTrack: mapperIdsToTrack,
@@ -142,24 +126,9 @@ async function main() {
     const htmlContent = generateHtmlReport(htmlReport);
     fs.writeFileSync(HTML_REPORT_FILE_PATH, htmlContent, 'utf-8');
     console.log(`HTML report saved to: ${HTML_REPORT_FILE_PATH}`);
-
-    // Create JSON report with updated lastCHecked values
-    const jsonReport = { ...htmlReport }
-    jsonReport.generatedDate = Date.now();
-    for (const mapper of jsonReport.mappers) {
-        for (const map of mapper.maps) {
-            map.lastChecked = Date.now();
-            map.totalPlaysWhenLastChecked = map.totalPlays;
-            map.upvotesWhenLastChecked = map.upvotes;
-            map.downvotesWhenLastChecked = map.downvotes;
-            map.bsScoreWhenLastChecked = map.bsScore;
-            for (const leaderboard of map.leaderboards) {
-                leaderboard.playCountWhenLastChecked = leaderboard.playCount;
-            }
-        }
-    }
-
-    // Write JSON report
+    
+    // Create and write JSON report with updated lastChecked values
+    const jsonReport = generateJsonReport(htmlReport);
     fs.writeFileSync(JSON_REPORT_FILE_PATH, JSON.stringify(jsonReport, null, 2), 'utf-8');
     console.log(`Report saved to: ${JSON_REPORT_FILE_PATH}`);
 }

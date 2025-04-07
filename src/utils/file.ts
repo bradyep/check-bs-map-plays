@@ -200,3 +200,22 @@ export function generateHtmlReport(report: Report): string {
 </html>
     `;
 }
+
+export function generateJsonReport(htmlReport: Report): Report {
+  const jsonReport = { ...htmlReport };
+  jsonReport.generatedDate = Date.now();
+  for (const mapper of jsonReport.mappers) {
+      for (const map of mapper.maps) {
+          map.lastChecked = Date.now();
+          map.totalPlaysWhenLastChecked = map.totalPlays;
+          map.upvotesWhenLastChecked = map.upvotes;
+          map.downvotesWhenLastChecked = map.downvotes;
+          map.bsScoreWhenLastChecked = map.bsScore;
+          for (const leaderboard of map.leaderboards) {
+              leaderboard.playCountWhenLastChecked = leaderboard.playCount;
+          }
+      }
+  }
+
+  return jsonReport;
+}
