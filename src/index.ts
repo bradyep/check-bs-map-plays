@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { getLeaderboardData, getLeaderboards, getMapsFromBeatSaver } from './utils/api';
+import { getLeaderboardData, getBeatLeaderLeaderboards, getMapsFromBeatSaver } from './utils/api';
 import { getLastReportFile, generateHtmlReport, generateJsonReport } from './utils/file';
 import { sortMapDifficulties } from './utils/map-data';
 import { Report } from './models/Report';
@@ -25,7 +25,7 @@ async function main() {
         lastReport.mapperIdsToTrack,
         lastReport.mappers,
         getMapsFromBeatSaver,
-        getLeaderboards,
+        getBeatLeaderLeaderboards,
         removeNonHex,
         getLeaderboardData
     );

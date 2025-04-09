@@ -16,49 +16,48 @@ export class Report {
         mapperIds: number[],
         mappersFromLastReport: Mapper[],
         getMapsFromBeatSaver: (mapperId: number) => Promise<Map[]>,
-        getLeaderboards: (mapperId: number) => Promise<Map[]>,
+        getBeatLeaderLeaderboards: (mapperId: number) => Promise<Map[]>,
         removeNonHex: (id: string) => string,
         getLeaderboardData: (leaderboardId: string) => Promise<Leaderboard>
     ): Promise<Mapper[]> {
         const allMappersData: Mapper[] = [];
-
         for (const mapperId of mapperIds) {
             console.log(`Processing mapper ID: ${mapperId}`);
             let mapperName: string = Report.UNKNOWN_MAPPER_NAME;
             const currentReportMapper = mappersFromLastReport.find((mapper) => mapper.mapperId === mapperId);
-
-            const beatSaverMaps: Map[] = await getMapsFromBeatSaver(mapperId);
-            const beatLeaderMaps: Map[] = await getLeaderboards(mapperId);
+            // Don't mutate data from API calls
+            const beatSaverMaps: ReadonlyArray<Map> = await getMapsFromBeatSaver(mapperId);
+            const beatLeaderMaps: ReadonlyArray<Map> = await getBeatLeaderLeaderboards(mapperId);
             console.log(`${beatSaverMaps.length} maps from Beat Saver: ` + beatSaverMaps.map((map) => map.id).join(', '));
             console.log(`${beatLeaderMaps.length} maps from Beat Leader: ` + beatLeaderMaps.map((map) => map.id).join(', '));
 
+            const mapperData: Map[] = [];
+
             for (const blMap of beatLeaderMaps) {
-                // TODO: Instead of mutating maps we get from API, create new mergedMaps
                 const nonHexId = removeNonHex(blMap.id);
                 console.log(`Processing blMap.id: ${blMap.id} | nonHexId: ${nonHexId}`);
-                let matchingBeatSaverMap = beatSaverMaps.find((beatSaverMap) => beatSaverMap.id === nonHexId);
+                const matchingBeatSaverMap: Readonly<Map> | undefined = beatSaverMaps.find((beatSaverMap) => beatSaverMap.id === nonHexId);
 
                 if (!matchingBeatSaverMap) {
                     console.log('No matching BeatSaver map found for id: ' + nonHexId + ', this should not happen. Throwing in the towel');
                     continue;
                 }
-                // QUESTION: Do we need to set this? Use mergedMaps in the future.
-                blMap.id = matchingBeatSaverMap.id;
+                const mergedMap = { ...matchingBeatSaverMap };
                 if (mapperName === Report.UNKNOWN_MAPPER_NAME) {
-                    mapperName = matchingBeatSaverMap.mapperName;
+                    mapperName = mergedMap.mapperName;
                 }
 
                 let currentReportMap: Map | undefined = undefined;
                 if (currentReportMapper) {
-                    currentReportMap = currentReportMapper.maps.find((map) => map.id === blMap.id);
+                    currentReportMap = currentReportMapper.maps.find((map) => map.id === mergedMap.id);
                     if (currentReportMap) {
-                        matchingBeatSaverMap.lastChecked = currentReportMap.lastChecked;
-                        matchingBeatSaverMap.totalPlaysWhenLastChecked = currentReportMap.totalPlays;
-                        matchingBeatSaverMap.upvotesWhenLastChecked = currentReportMap.upvotes;
-                        matchingBeatSaverMap.downvotesWhenLastChecked = currentReportMap.downvotes;
-                        matchingBeatSaverMap.bsScoreWhenLastChecked = currentReportMap.bsScore;
+                        mergedMap.lastChecked = currentReportMap.lastChecked;
+                        mergedMap.totalPlaysWhenLastChecked = currentReportMap.totalPlays;
+                        mergedMap.upvotesWhenLastChecked = currentReportMap.upvotes;
+                        mergedMap.downvotesWhenLastChecked = currentReportMap.downvotes;
+                        mergedMap.bsScoreWhenLastChecked = currentReportMap.bsScore;
                     } else {
-                        console.log('Map lastChecked values will be undefined since we could not find this map id in report: ' + blMap.id);
+                        console.log('Map lastChecked values will be undefined since we could not find this map id in report: ' + mergedMap.id);
                     }
                 } else {
                     console.log('Map lastChecked values will be undefined since we could not find this mapper id in report: ' + mapperId);
@@ -66,36 +65,40 @@ export class Report {
 
                 console.log(`blMap.leaderboards.length: ${blMap.leaderboards.length}`);
                 for (const leaderboard of blMap.leaderboards) {
-                    const leaderboardData: Leaderboard = await getLeaderboardData(leaderboard.leaderboardId);
+                    // Do not mutate data from API calls
+                    const leaderboardData: Readonly<Leaderboard> = await getLeaderboardData(leaderboard.leaderboardId);
+                    const mergedMapLeaderboardData = { ...leaderboardData };
                     if (currentReportMap && currentReportMap.leaderboards) {
                         const currentReportLeaderboard = currentReportMap.leaderboards.find((lb) => lb.leaderboardId === leaderboard.leaderboardId);
                         if (currentReportLeaderboard) {
-                            leaderboardData.playCountWhenLastChecked = currentReportLeaderboard.playCount;
+                            mergedMapLeaderboardData.playCountWhenLastChecked = currentReportLeaderboard.playCount;
                             const newRecentPlays: Play[] = [];
-                            for (const play of leaderboardData.recentPlays) {
-                                if (play.datePlayed * 1000 > (matchingBeatSaverMap!.lastChecked || 0)) {
+                            for (const play of mergedMapLeaderboardData.recentPlays) {
+                                if (play.datePlayed * 1000 > (mergedMap!.lastChecked || 0)) {
                                     newRecentPlays.push(play);
                                 }
                             }
-                            leaderboardData.recentPlays = newRecentPlays;
+                            mergedMapLeaderboardData.recentPlays = newRecentPlays;
                         } else {
                             console.log('Leaderboard last checked play count will be undefined since we could not find this leaderboard id in report: ' + leaderboard.leaderboardId);
                         }
                     } else {
-                        console.log('Leaderboard last checked play count will be undefined since we could not find this map id in report (or it didnt have leaderboards): ' + blMap.id);
+                        console.log('Leaderboard last checked play count will be undefined since we could not find this map id in report (or it didnt have leaderboards): ' + mergedMap.id);
                     }
-                    matchingBeatSaverMap.leaderboards = matchingBeatSaverMap.leaderboards || [];
-                    matchingBeatSaverMap.leaderboards.push(leaderboardData);
-                    matchingBeatSaverMap.totalPlays = matchingBeatSaverMap.leaderboards.reduce((sum: number, lb: Leaderboard) => sum + lb.playCount, 0);
+                    mergedMap.leaderboards = mergedMap.leaderboards || [];
+                    mergedMap.leaderboards.push(mergedMapLeaderboardData);
+                    mergedMap.totalPlays = mergedMap.leaderboards.reduce((sum: number, lb: Leaderboard) => sum + lb.playCount, 0);
                 }
+
+                mapperData.push(mergedMap);
             }
 
             allMappersData.push({
                 mapperId: mapperId,
                 mapperName: mapperName,
-                maps: beatSaverMaps
+                maps: mapperData
             });
-        }
+        } // for (const mapperId of mapperIds) {
 
         return allMappersData;
     } // public static async assembleMappersData(

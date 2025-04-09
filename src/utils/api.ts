@@ -21,7 +21,7 @@ export async function getMapsFromBeatSaver(mapperId: number): Promise<Map[]> {
     })) as Map[];
 }
 
-export async function getLeaderboards(mapperId: number): Promise<Map[]> {
+export async function getBeatLeaderLeaderboards(mapperId: number): Promise<Map[]> {
     const response = await axios.get(`${BEAT_LEADER_API}/maps?mappers=${mapperId}&count=100`);
     return response.data.data.map((map: any) => ({
         id: map.id,
