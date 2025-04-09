@@ -17,7 +17,8 @@ export async function getMapsFromBeatSaver(mapperId: number): Promise<Map[]> {
         downvotes: map.stats.downvotes || 0,
         bsScore: map.stats.score || 0,
         coverUrl: map.versions?.[0]?.coverURL ?? undefined,
-        lastChecked: Date.now()
+        lastChecked: Date.now(),
+        uploadDate: map.uploaded
     })) as Map[];
 }
 

@@ -11,6 +11,7 @@ export interface Map {
     upvotes: number;
     downvotes: number;
     bsScore?: number; // BeatSaver vote rating score
+    uploadDate: string; // ISO 8601 format
     // Only used for generated HTML reports
     totalPlaysWhenLastChecked?: number;
     upvotesWhenLastChecked?: number;

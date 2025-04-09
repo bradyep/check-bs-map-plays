@@ -1,8 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import { getLeaderboardData, getBeatLeaderLeaderboards, getMapsFromBeatSaver } from './utils/api';
-import { getLastReportFile, generateHtmlReport, generateJsonReport } from './utils/file';
-import { sortMapDifficulties } from './utils/map-data';
 import { Report } from './models/Report';
 import { removeNonHex } from './utils/string';
 
@@ -13,7 +11,7 @@ const HTML_REPORT_FILE_PATH = path.join(__dirname, HTML_REPORT_FILE_NAME);
 
 async function main() {
     // Load last generated report file for mappers and differences
-    const lastReport = await getLastReportFile(JSON_REPORT_FILE_PATH);
+    const lastReport = await Report.getLastReportFile(JSON_REPORT_FILE_PATH);
     console.log('Last report:', lastReport);
 
     if (!lastReport || !lastReport.mapperIdsToTrack || lastReport.mapperIdsToTrack.length === 0) {
@@ -30,21 +28,21 @@ async function main() {
         getLeaderboardData
     );
 
-    sortMapDifficulties(allMappersData);
-
     const htmlReport = new Report(
         allMappersData,
         lastReport.generatedDate,
         lastReport.mapperIdsToTrack
     );
 
+    htmlReport.sortMapDifficulties();
+
     // Write HTML report
-    const htmlContent = generateHtmlReport(htmlReport);
+    const htmlContent = htmlReport.generateHtmlReport();
     fs.writeFileSync(HTML_REPORT_FILE_PATH, htmlContent, 'utf-8');
     console.log(`HTML report saved to: ${HTML_REPORT_FILE_PATH}`);
 
     // Create and write JSON report with updated lastChecked values
-    const jsonReport = generateJsonReport(htmlReport);
+    const jsonReport = htmlReport.generateJsonReport();
     fs.writeFileSync(JSON_REPORT_FILE_PATH, JSON.stringify(jsonReport, null, 2), 'utf-8');
     console.log(`Report saved to: ${JSON_REPORT_FILE_PATH}`);
 }
