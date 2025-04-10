@@ -5,10 +5,9 @@ import { getLeaderboardData, getBeatLeaderLeaderboards, getMapsFromBeatSaver } f
 import { Report } from './models/Report';
 import { removeNonHex } from './utils/string';
 
-const SAVED_REPORT_FILE_NAME = 'map-play-report.json';
-const HTML_REPORT_FILE_NAME = 'map-play-report.html';
-const JSON_REPORT_FILE_PATH = path.join(__dirname, SAVED_REPORT_FILE_NAME);
-const HTML_REPORT_FILE_PATH = path.join(__dirname, HTML_REPORT_FILE_NAME);
+const JSON_REPORT_FILE_PATH = path.join(__dirname, 'map-play-report.json');
+const HTML_REPORT_FILE_PATH = path.join(__dirname, 'map-play-report.html');
+const DEBOUNCE_TIME_IN_MS = 5 * 60000; // 5 minutes
 
 async function main() {
     // Load last generated report file for mappers and differences
@@ -39,6 +38,11 @@ async function main() {
 
         mapperIdsToTrack = [mapperId];
     } else {
+        if ((Date.now() - lastReport.generatedDate) < DEBOUNCE_TIME_IN_MS) {
+            console.log(`Map data already up-to-date (last report was generated less than ${DEBOUNCE_TIME_IN_MS / 60000} minutes ago). Exiting...`);
+
+            return;
+        }
         mapperIdsToTrack = lastReport.mapperIdsToTrack;
     }
 
