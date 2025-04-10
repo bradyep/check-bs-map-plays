@@ -57,7 +57,7 @@ async function main() {
 
     const htmlReport = new Report(
         allMappersData,
-        lastReport?.generatedDate || Date.now(),
+        Date.now(),
         mapperIdsToTrack
     );
 
