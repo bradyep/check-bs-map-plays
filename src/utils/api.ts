@@ -15,7 +15,7 @@ export async function getMapsFromBeatSaver(mapperId: number): Promise<Map[]> {
         mapperName: map.collaborators?.find((c: { id: number }) => c.id === mapperId)?.name || map.uploader.name,
         upvotes: map.stats.upvotes || 0,
         downvotes: map.stats.downvotes || 0,
-        bsScore: map.stats.score || 0,
+        bsScore: Math.round(map.stats.score * 1000) / 10 || 0,
         coverUrl: map.versions?.[0]?.coverURL ?? undefined,
         lastChecked: Date.now(),
         uploadDate: map.uploaded

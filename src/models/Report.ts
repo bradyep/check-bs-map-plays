@@ -279,6 +279,12 @@ export class Report {
         .recent-plays td {
           background-color: #0d1117;
         }
+        .positive-change {
+          color: #28a745;
+        }
+        .negative-change {
+          color: #d73a49;
+        }
       </style>
     </head>
     <body>
@@ -293,14 +299,14 @@ export class Report {
                   <div class="map-info">
                     ${map.coverUrl ? `<img src="${map.coverUrl}" alt="Cover for ${map.name}">` : ''}
                     <h3>Map: ${map.name} (Last Checked: ${new Date(map.lastChecked).toLocaleString()})</h3>
-                    <p><strong>Upvotes:</strong> ${map.upvotes} (Old Value: ${map.upvotesWhenLastChecked})</p>
-                    <p><strong>Downvotes:</strong> ${map.downvotes} (Old Value: ${map.downvotesWhenLastChecked})</p>
-                    <p><strong>BS Score:</strong> ${map.bsScore} (Old Value: ${map.bsScoreWhenLastChecked})</p>
-                    <p><strong>Total Plays:</strong> ${map.totalPlays} (Old Value: ${map.totalPlaysWhenLastChecked})</p>
+                    <p><strong>Upvotes:</strong> ${map.upvotes}${map.upvotes !== (map.upvotesWhenLastChecked || 0) ? ` (<span class="${map.upvotes - (map.upvotesWhenLastChecked || 0) >= 0 ? 'positive-change' : 'negative-change'}">${map.upvotes - (map.upvotesWhenLastChecked || 0) >= 0 ? '+' : ''}${map.upvotes - (map.upvotesWhenLastChecked || 0)}</span>)` : ''}</p>
+                    <p><strong>Downvotes:</strong> ${map.downvotes}${map.downvotes !== (map.downvotesWhenLastChecked || 0) ? ` (<span class="${map.downvotes - (map.downvotesWhenLastChecked || 0) >= 0 ? 'negative-change' : 'positive-change'}">${map.downvotes - (map.downvotesWhenLastChecked || 0) >= 0 ? '+' : ''}${map.downvotes - (map.downvotesWhenLastChecked || 0)}</span>)` : ''}</p>
+                    <p><strong>BS Score:</strong> ${map.bsScore}${map.bsScore !== (map.bsScoreWhenLastChecked || 0) ? ` (<span class="${(map.bsScore || 0) - (map.bsScoreWhenLastChecked || 0) >= 0 ? 'positive-change' : 'negative-change'}">${(map.bsScore || 0) - (map.bsScoreWhenLastChecked || 0) >= 0 ? '+' : ''}${((map.bsScore || 0) - (map.bsScoreWhenLastChecked || 0)).toFixed(1)}</span>)` : ''}</p>
+                    <p><strong>Total Plays:</strong> ${map.totalPlays}${map.totalPlays !== (map.totalPlaysWhenLastChecked || 0) ? ` (<span class="${(map.totalPlays || 0) - (map.totalPlaysWhenLastChecked || 0) >= 0 ? 'positive-change' : 'negative-change'}">${(map.totalPlays || 0) - (map.totalPlaysWhenLastChecked || 0) >= 0 ? '+' : ''}${(map.totalPlays || 0) - (map.totalPlaysWhenLastChecked || 0)}</span>)` : ''}</p>
                     ${map.leaderboards.map(leaderboard => `
                       <div class="leaderboard">
                         <h4>Leaderboard: ${leaderboard.difficultyName} - ${leaderboard.modeName}</h4>
-                        <p><strong>Total Play Count:</strong> ${leaderboard.playCount} (Old Value: ${leaderboard.playCountWhenLastChecked})</p>
+                        <p><strong>Total Play Count:</strong> ${leaderboard.playCount}${leaderboard.playCount !== (leaderboard.playCountWhenLastChecked || 0) ? ` (<span class="${leaderboard.playCount - (leaderboard.playCountWhenLastChecked || 0) >= 0 ? 'positive-change' : 'negative-change'}">${leaderboard.playCount - (leaderboard.playCountWhenLastChecked || 0) >= 0 ? '+' : ''}${leaderboard.playCount - (leaderboard.playCountWhenLastChecked || 0)}</span>)` : ''}</p>
                         <div class="recent-plays">
                           <h5>Recent Plays:</h5>
                           <table>
