@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
+import express from 'express';
 import { getLeaderboardData, getBeatLeaderLeaderboards, getMapsFromBeatSaver } from './utils/api';
 import { Report } from './models/Report';
 import { removeNonHex } from './utils/string';
@@ -55,12 +56,7 @@ async function main() {
         getLeaderboardData
     );
 
-    const htmlReport = new Report(
-        allMappersData,
-        Date.now(),
-        mapperIdsToTrack
-    );
-
+    const htmlReport = new Report(allMappersData, Date.now(), mapperIdsToTrack);
     htmlReport.sortMapDifficulties();
 
     // Write HTML report
@@ -74,6 +70,61 @@ async function main() {
     console.log(`Report saved to: ${JSON_REPORT_FILE_PATH}`);
 }
 
-main().catch((err) => {
-    console.error('Error:', err);
-});
+async function startServer() {
+    const app = express();
+    const PORT = 3000;
+
+    app.get('/report', async (req, res) => {
+        const lastReport: Report | undefined = await Report.getLastReportFile(JSON_REPORT_FILE_PATH);
+
+        let htmlContent: string;
+        if (lastReport && (Date.now() - lastReport.generatedDate) < DEBOUNCE_TIME_IN_MS) {
+            console.log(`Serving cached report (last report was generated less than ${DEBOUNCE_TIME_IN_MS / 60000} minutes ago).`);
+            htmlContent = new Report(lastReport.mappers, lastReport.generatedDate, lastReport.mapperIdsToTrack).generateHtmlReport();
+        } else {
+            console.log('Generating new report...');
+            const mapperIdsToTrack = lastReport?.mapperIdsToTrack || [];
+
+            if (mapperIdsToTrack.length === 0) {
+                res.status(400).send('No mapper IDs to track. Please run the program in CLI mode to add mapper IDs.');
+
+                return;
+            }
+
+            const allMappersData = await Report.assembleMappersData(
+                mapperIdsToTrack,
+                lastReport?.mappers || [],
+                getMapsFromBeatSaver,
+                getBeatLeaderLeaderboards,
+                removeNonHex,
+                getLeaderboardData
+            );
+
+            const newReport = new Report(allMappersData, Date.now(), mapperIdsToTrack);
+            newReport.sortMapDifficulties();
+
+            htmlContent = newReport.generateHtmlReport();
+
+            // Save the new report
+            const jsonReport = newReport.generateJsonReport();
+            fs.writeFileSync(JSON_REPORT_FILE_PATH, JSON.stringify(jsonReport, null, 2), 'utf-8');
+            console.log(`New report saved to: ${JSON_REPORT_FILE_PATH}`);
+        }
+
+        res.send(htmlContent);
+    });
+
+    app.listen(PORT, () => {
+        console.log(`Server is running on http://localhost:${PORT}`);
+    });
+}
+
+if (process.argv.includes('server')) {
+    startServer().catch((err) => {
+        console.error('Error starting server:', err);
+    });
+} else {
+    main().catch((err) => {
+        console.error('Error:', err);
+    });
+}

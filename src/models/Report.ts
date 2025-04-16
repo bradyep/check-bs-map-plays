@@ -15,8 +15,6 @@ export class Report {
 
   public generateJsonReport(): Report {
     const jsonReport = { ...this };
-    // Already setting this in index.ts
-    // jsonReport.generatedDate = Date.now();
     for (const mapper of jsonReport.mappers) {
       for (const map of mapper.maps) {
         map.lastChecked = Date.now();
