@@ -14,7 +14,8 @@ export class Report {
   ) { }
 
   public generateJsonReport(): Report {
-    const jsonReport = { ...this };
+    // Need deep cloning to get correct lastChecked values
+    const jsonReport = structuredClone(this);
     for (const mapper of jsonReport.mappers) {
       for (const map of mapper.maps) {
         map.lastChecked = Date.now();
@@ -167,6 +168,8 @@ export class Report {
   } // public static async assembleMappersData(
 
   public generateHtmlReport(): string {
+    this.sortMapDifficulties();
+
     return `
     <!DOCTYPE html>
     <html lang="en">

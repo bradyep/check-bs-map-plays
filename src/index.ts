@@ -10,7 +10,7 @@ const JSON_REPORT_FILE_PATH = path.join(__dirname, 'map-play-report.json');
 const HTML_REPORT_FILE_PATH = path.join(__dirname, 'map-play-report.html');
 const DEBOUNCE_TIME_IN_MS = 5 * 60000; // 5 minutes
 
-async function main() {
+async function runLocal() {
     // Load last generated report file for mappers and differences
     const lastReport: Report | undefined = await Report.getLastReportFile(JSON_REPORT_FILE_PATH);
     console.log('Last report:', lastReport);
@@ -57,7 +57,6 @@ async function main() {
     );
 
     const htmlReport = new Report(allMappersData, Date.now(), mapperIdsToTrack);
-    htmlReport.sortMapDifficulties();
 
     // Write HTML report
     const htmlContent = htmlReport.generateHtmlReport();
@@ -101,8 +100,6 @@ async function startServer() {
             );
 
             const newReport = new Report(allMappersData, Date.now(), mapperIdsToTrack);
-            newReport.sortMapDifficulties();
-
             htmlContent = newReport.generateHtmlReport();
 
             // Save the new report
@@ -124,7 +121,7 @@ if (process.argv.includes('server')) {
         console.error('Error starting server:', err);
     });
 } else {
-    main().catch((err) => {
+    runLocal().catch((err) => {
         console.error('Error:', err);
     });
 }

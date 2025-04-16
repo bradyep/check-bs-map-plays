@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "tsc && node dist/index.js",
-    "server": "tsc && node dist/index.js -- server"
+    "server": "tsc && node dist/index.js server"
   },
   "dependencies": {
     "axios": "^0.21.1",
