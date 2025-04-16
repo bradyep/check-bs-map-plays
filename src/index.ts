@@ -63,6 +63,11 @@ async function runLocal() {
     fs.writeFileSync(HTML_REPORT_FILE_PATH, htmlContent, 'utf-8');
     console.log(`HTML report saved to: ${HTML_REPORT_FILE_PATH}`);
 
+    // Open the HTML report in the default browser
+    const open = await import('open'); // Use dynamic import
+    await open.default(HTML_REPORT_FILE_PATH);
+    console.log('HTML report opened in the default browser.');
+
     // Create and write JSON report with updated lastChecked values
     const jsonReport = htmlReport.generateJsonReport();
     fs.writeFileSync(JSON_REPORT_FILE_PATH, JSON.stringify(jsonReport, null, 2), 'utf-8');
