@@ -80,6 +80,9 @@ async function startServer() {
     const app = express();
     const PORT = 3000;
 
+    // Serve static files from the "public" directory
+    app.use(express.static(path.join(__dirname, '../public')));
+
     app.get('/report', async (req, res) => {
         const lastReport: Report | undefined = await Report.getLastReportFile(JSON_REPORT_FILE_PATH);
 
@@ -93,7 +96,6 @@ async function startServer() {
 
             if (mapperIdsToTrack.length === 0) {
                 res.status(400).send('No mapper IDs to track. Please run the program in CLI mode to add mapper IDs.');
-
                 return;
             }
 
