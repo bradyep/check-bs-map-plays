@@ -9,6 +9,7 @@ import { removeNonHex } from './utils/string';
 const JSON_REPORT_FILE_PATH = path.join(__dirname, 'map-play-report.json');
 const HTML_REPORT_FILE_PATH = path.join(__dirname, 'map-play-report.html');
 const DEBOUNCE_TIME_IN_MS = 5 * 60000; // 5 minutes
+const DEBUGGING = process.argv.includes('debug');
 
 async function runLocal() {
     // Load last generated report file for mappers and differences
@@ -53,7 +54,8 @@ async function runLocal() {
         getMapsFromBeatSaver,
         getBeatLeaderLeaderboards,
         removeNonHex,
-        getLeaderboardData
+        getLeaderboardData,
+        DEBUGGING
     );
 
     const htmlReport = new Report(allMappersData, Date.now(), mapperIdsToTrack);
@@ -101,7 +103,8 @@ async function startServer() {
                 getMapsFromBeatSaver,
                 getBeatLeaderLeaderboards,
                 removeNonHex,
-                getLeaderboardData
+                getLeaderboardData,
+                DEBUGGING
             );
 
             const newReport = new Report(allMappersData, Date.now(), mapperIdsToTrack);

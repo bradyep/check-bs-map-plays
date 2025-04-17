@@ -79,7 +79,8 @@ export class Report {
     getMapsFromBeatSaver: (mapperId: number) => Promise<Map[]>,
     getBeatLeaderLeaderboards: (mapperId: number) => Promise<Map[]>,
     removeNonHex: (id: string) => string,
-    getLeaderboardData: (leaderboardId: string) => Promise<Leaderboard>
+    getLeaderboardData: (leaderboardId: string) => Promise<Leaderboard>,
+    debugging: boolean = false
   ): Promise<Mapper[]> {
     const allMappersData: Mapper[] = [];
     for (const mapperId of mapperIds) {
@@ -89,14 +90,14 @@ export class Report {
       // Don't mutate data from API calls
       const beatSaverMaps: ReadonlyArray<Map> = await getMapsFromBeatSaver(mapperId);
       const beatLeaderMaps: ReadonlyArray<Map> = await getBeatLeaderLeaderboards(mapperId);
-      console.log(`${beatSaverMaps.length} maps from Beat Saver: ` + beatSaverMaps.map((map) => map.id).join(', '));
-      console.log(`${beatLeaderMaps.length} maps from Beat Leader: ` + beatLeaderMaps.map((map) => map.id).join(', '));
+      console.log(`${beatSaverMaps.length} maps from Beat Saver` + (debugging ? ' : ' + beatSaverMaps.map((map) => map.id).join(', ') : ''));
+      console.log(`${beatLeaderMaps.length} maps from Beat Leader` + (debugging ? ' : ' + beatLeaderMaps.map((map) => map.id).join(', ') : ''));
 
       const mapperData: Map[] = [];
 
       for (const blMap of beatLeaderMaps) {
         const nonHexId = removeNonHex(blMap.id);
-        console.log(`Processing blMap.id: ${blMap.id} | nonHexId: ${nonHexId}`);
+        console.log(`Processing blMap.id: ${blMap.id}` + (debugging ? ` | nonHexId: ${nonHexId}` : ''));
         const matchingBeatSaverMap: Readonly<Map> | undefined = beatSaverMaps.find((beatSaverMap) => beatSaverMap.id === nonHexId);
 
         if (!matchingBeatSaverMap) {
@@ -118,13 +119,13 @@ export class Report {
             mergedMap.downvotesWhenLastChecked = currentReportMap.downvotes;
             mergedMap.bsScoreWhenLastChecked = currentReportMap.bsScore;
           } else {
-            console.log('Map lastChecked values will be undefined since we could not find this map id in report: ' + mergedMap.id);
+            if (debugging) { console.log('Map lastChecked values will be undefined since we could not find this map id in report: ' + mergedMap.id); }
           }
         } else {
-          console.log('Map lastChecked values will be undefined since we could not find this mapper id in report: ' + mapperId);
+          if (debugging) { console.log('Map lastChecked values will be undefined since we could not find this mapper id in report: ' + mapperId); }
         }
 
-        console.log(`blMap.leaderboards.length: ${blMap.leaderboards.length}`);
+        if (debugging) { console.log(`blMap.leaderboards.length: ${blMap.leaderboards.length}`); }
         for (const leaderboard of blMap.leaderboards) {
           // Do not mutate data from API calls
           const leaderboardData: Readonly<Leaderboard> = await getLeaderboardData(leaderboard.leaderboardId);
@@ -141,10 +142,10 @@ export class Report {
               }
               mergedMapLeaderboardData.recentPlays = newRecentPlays;
             } else {
-              console.log('Leaderboard last checked play count will be undefined since we could not find this leaderboard id in report: ' + leaderboard.leaderboardId);
+              if (debugging) { console.log('Leaderboard last checked play count will be undefined since we could not find this leaderboard id in report: ' + leaderboard.leaderboardId); }
             }
           } else {
-            console.log('Leaderboard last checked play count will be undefined since we could not find this map id in report (or it didnt have leaderboards): ' + mergedMap.id);
+            if (debugging) { console.log('Leaderboard last checked play count will be undefined since we could not find this map id in report (or it didnt have leaderboards): ' + mergedMap.id); }
           }
           mergedMap.leaderboards = mergedMap.leaderboards || [];
           mergedMap.leaderboards.push(mergedMapLeaderboardData);
