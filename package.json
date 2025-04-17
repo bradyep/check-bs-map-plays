@@ -1,12 +1,14 @@
 {
-  "name": "node-console-app",
+  "name": "check-map-plays",
   "version": "1.0.0",
-  "description": "A console application that retrieves new plays of a specific map from the BeatLeader API.",
+  "description": "Console application that tracks play information for your Beat Saber custom maps",
   "main": "dist/index.js",
   "scripts": {
     "start": "tsc && node dist/index.js",
     "server": "tsc && node dist/index.js server",
-    "debug": "tsc && node dist/index.js debug"
+    "debug": "tsc && node dist/index.js debug",
+    "build": "tsc && npm run copy-public",
+    "copy-public": "xcopy src\\public dist\\public /E /I /Y"
   },
   "dependencies": {
     "axios": "^0.21.1",
