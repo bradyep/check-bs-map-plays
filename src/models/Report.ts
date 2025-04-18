@@ -361,7 +361,7 @@ export class Report {
                                   <td>${new Date(play.datePlayed * 1000).toLocaleString()}</td>
                                   <td class="replayCell">
                                     <a href="https://replay.beatleader.com/?scoreId=${play.scoreId}" target="_blank">
-                                      <img src="/images/replays.svg" class="replayIcon"></img>
+                                      <img src="./images/replays.svg" class="replayIcon"></img>
                                     </a>
                                   </td>
                                 </tr>

@@ -9,6 +9,7 @@ import { removeNonHex } from './utils/string';
 const JSON_REPORT_FILE_PATH = path.join(__dirname, 'map-play-report.json');
 const HTML_REPORT_FILE_PATH = path.join(__dirname, 'map-play-report.html');
 const DEBOUNCE_TIME_IN_MS = 5 * 60000; // 5 minutes
+// const DEBOUNCE_TIME_IN_MS = 1000; // 1 second for testing
 const DEBUGGING = process.argv.includes('debug');
 
 export async function runLocal() {
@@ -81,7 +82,8 @@ export async function startServer() {
     const PORT = 3000;
 
     // Serve static files from the "public" directory
-    app.use(express.static(path.join(__dirname, '../public')));
+    app.use(express.static(path.join(__dirname, 'public')));
+    app.use(express.static(path.join(__dirname, '../src/public')));
 
     app.get('/report', async (req, res) => {
         const lastReport: Report | undefined = await Report.getLastReportFile(JSON_REPORT_FILE_PATH);
