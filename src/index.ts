@@ -11,7 +11,7 @@ const HTML_REPORT_FILE_PATH = path.join(__dirname, 'map-play-report.html');
 const DEBOUNCE_TIME_IN_MS = 5 * 60000; // 5 minutes
 const DEBUGGING = process.argv.includes('debug');
 
-async function runLocal() {
+export async function runLocal() {
     // Load last generated report file for mappers and differences
     const lastReport: Report | undefined = await Report.getLastReportFile(JSON_REPORT_FILE_PATH);
     console.log('Last report:', lastReport);
@@ -76,7 +76,7 @@ async function runLocal() {
     console.log(`Report saved to: ${JSON_REPORT_FILE_PATH}`);
 }
 
-async function startServer() {
+export async function startServer() {
     const app = express();
     const PORT = 3000;
 

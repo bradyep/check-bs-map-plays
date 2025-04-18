@@ -87,9 +87,23 @@ export class Report {
       console.log(`Processing mapper ID: ${mapperId}`);
       let mapperName: string = Report.UNKNOWN_MAPPER_NAME;
       const currentReportMapper = mappersFromLastReport.find((mapper) => mapper.mapperId === mapperId);
-      // Don't mutate data from API calls
-      const beatSaverMaps: ReadonlyArray<Map> = await getMapsFromBeatSaver(mapperId);
-      const beatLeaderMaps: ReadonlyArray<Map> = await getBeatLeaderLeaderboards(mapperId);
+      
+      // Handle potential API errors gracefully
+      let beatSaverMaps: ReadonlyArray<Map> = [];
+      let beatLeaderMaps: ReadonlyArray<Map> = [];
+      
+      try {
+        beatSaverMaps = await getMapsFromBeatSaver(mapperId);
+      } catch (error) {
+        console.error('Error fetching Beat Saver maps:', error);
+      }
+
+      try {
+        beatLeaderMaps = await getBeatLeaderLeaderboards(mapperId);
+      } catch (error) {
+        console.error('Error fetching Beat Leader maps:', error);
+      }
+
       console.log(`${beatSaverMaps.length} maps from Beat Saver` + (debugging ? ' : ' + beatSaverMaps.map((map) => map.id).join(', ') : ''));
       console.log(`${beatLeaderMaps.length} maps from Beat Leader` + (debugging ? ' : ' + beatLeaderMaps.map((map) => map.id).join(', ') : ''));
 
