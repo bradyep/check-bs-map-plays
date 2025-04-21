@@ -111,7 +111,7 @@ export class Report {
 
       for (const blMap of beatLeaderMaps) {
         const nonHexId = removeNonHex(blMap.id);
-        console.log(`Processing blMap.id: ${blMap.id}` + (debugging ? ` | nonHexId: ${nonHexId}` : ''));
+        if (debugging) { console.log(`Processing blMap.id: ${blMap.id} | nonHexId: ${nonHexId}`); }
         const matchingBeatSaverMap: Readonly<Map> | undefined = beatSaverMaps.find((beatSaverMap) => beatSaverMap.id === nonHexId);
 
         if (!matchingBeatSaverMap) {
