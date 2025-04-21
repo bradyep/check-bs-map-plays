@@ -1,51 +1,60 @@
-# check-bs-map-plays
+# check-map-plays
 
-Easily track plays on your Beat Saber custom maps
+A Node.js application that tracks play statistics for your Beat Saber custom maps. It combines data from BeatSaver and BeatLeader to generate comprehensive reports about your maps' performance over time.
 
-This project is a Node.js console application that retrieves new plays of a specific map from the BeatLeader API since the last execution.
+![screenshot](map-play-report-example.png "Screenshot")
 
-## Project Structure
+## Features
 
-```
-node-console-app
-├── src
-│   ├── index.js        # Entry point of the application
-│   └── utils
-│       └── api.js     # Utility functions for API calls
-├── package.json        # npm configuration file
-└── README.md           # Project documentation
-```
+- Tracks upvotes, downvotes in addition to play data across difficulties
+- Displays recent plays with player information and replay links
+- Run as a server to view on any device/browser or run locally (HTML will be generated and opened)
+- Can track multiple mappers
+
+## Prerequisites
+
+- Node.js 17 or later
+- npm (comes with Node.js)
 
 ## Installation
 
-1. Clone the repository:
-   ```
-   git clone <repository-url>
-   cd node-console-app
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/bradyep/check-map-plays.git
+   cd check-map-plays
    ```
 
-2. Install the dependencies:
-   ```
+2. Install dependencies:
+   ```bash
    npm install
+   ```
+
+3. Build the project:
+   ```bash
+   npm run build
    ```
 
 ## Usage
 
-To run the application, use the following command:
-```
-node src/index.js
-```
+1. Start off by running locally which will ask you for your mapperId:
+   ```bash
+   npm start
+   ```
 
-Make sure to replace `<map-id>` in the code with the actual map ID you want to track.
+2. That will create a JSON file that will let you run the application as a server:
+   ```bash
+   npm run server
+   ```
 
-## Configuration
+The server can then be accessed at [http://localhost:3000/report](http://localhost:3000/report).
 
-The application retrieves the last execution timestamp from a local file. Ensure that this file exists and contains a valid timestamp in milliseconds.
+You can track more mappers by adding mapperIds to the `mapperIdsToTrack` property in the generated `map-play-report.json` file. 
 
-## Dependencies
+## Limitations
 
-- `axios`: For making HTTP requests to the BeatLeader API.
+- Due to API limitations, this tool can only process up to 100 maps per mapper
+- In order to not hit any API too hard, this application will supply cached data if you request a report less than 15 minutes from the last time
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the Apache License - see the LICENSE file for details.
