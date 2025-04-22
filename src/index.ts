@@ -26,7 +26,7 @@ export async function runLocal() {
         });
 
         const mapperId = await new Promise<number | undefined>((resolve) => {
-            rl.question('Please enter a mapper ID to track (or press Enter to exit): ', (answer) => {
+            rl.question('Please enter a BeatSaver mapper ID to track (or press Enter to exit): ', (answer) => {
                 rl.close();
                 const parsedId = parseInt(answer, 10);
                 resolve(isNaN(parsedId) ? undefined : parsedId);

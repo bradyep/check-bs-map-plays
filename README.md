@@ -36,7 +36,7 @@ A Node.js application that tracks play statistics for your Beat Saber custom map
 
 ## Usage
 
-1. Start off by running locally which will ask you for your mapperId:
+1. Start off by running locally which will ask you for your BeatSaver mapperId:
    ```bash
    npm start
    ```
