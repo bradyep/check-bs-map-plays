@@ -21,7 +21,7 @@ A Node.js application that tracks play statistics for your Beat Saber custom map
 1. Clone this repository:
    ```bash
    git clone https://github.com/bradyep/check-bs-map-plays.git
-   cd check-map-plays
+   cd check-bs-map-plays
    ```
 
 2. Install dependencies:
