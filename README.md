@@ -14,7 +14,6 @@ A Node.js application that tracks play statistics for your Beat Saber custom map
 ## Prerequisites
 
 - Node.js 17 or later
-- npm (comes with Node.js)
 
 ## Installation
 
