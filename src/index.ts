@@ -11,6 +11,7 @@ const JSON_REPORT_FILE_PATH = path.join(__dirname, 'map-play-report.json');
 const HTML_REPORT_FILE_PATH = path.join(__dirname, 'map-play-report.html');
 const DEBOUNCE_TIME_IN_MS = 15 * 60000; // 15 minutes
 const DEBUGGING = process.argv.includes('debug');
+const PORT = 3000;
 
 export async function runLocal() {
     try {
@@ -88,7 +89,6 @@ export async function runLocal() {
 
 export async function startServer() {
     const app = express();
-    const PORT = 3000;
 
     // Serve static files from the "public" directory
     app.use(express.static(path.join(__dirname, 'public')));
