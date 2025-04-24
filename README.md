@@ -13,7 +13,7 @@ A Node.js application that tracks play statistics for your Beat Saber custom map
 
 ## Prerequisites
 
-- Node.js 17 or later
+- Node.js 18 or later
 
 ## Installation
 
@@ -48,6 +48,14 @@ A Node.js application that tracks play statistics for your Beat Saber custom map
 The server can then be accessed at [http://localhost:3000/report](http://localhost:3000/report).
 
 You can track more mappers by adding mapperIds to the `mapperIdsToTrack` property in the generated `map-play-report.json` file. 
+
+### Running in Docker
+
+You can run this within a Docker container with this command:
+
+`docker run -p 3000:3000 check-map-plays`
+
+Note that you will still have to run `npm start` to set the mapperId from the command line from within the container. 
 
 ## Limitations
 
