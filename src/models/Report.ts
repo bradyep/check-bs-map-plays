@@ -3,6 +3,7 @@ import { Leaderboard } from './Leaderboard';
 import { Map } from './Map';
 import { Play } from './Play';
 import fs from 'fs';
+import { logError } from '../utils/error';
 
 export class Report {
   static readonly UNKNOWN_MAPPER_NAME = 'Unknown Mapper';
@@ -35,19 +36,20 @@ export class Report {
   public static async getLastReportFile(reportFilePath: string): Promise<Report | undefined> {
     let lastReport: Report | undefined;
     return new Promise((resolve) => {
-      if (fs.existsSync(reportFilePath)) {
-        try {
+      try {
+        if (fs.existsSync(reportFilePath)) {
           const fileContent = fs.readFileSync(reportFilePath, 'utf-8');
           lastReport = JSON.parse(fileContent) as Report;
           console.log('Successfully loaded last report');
           resolve(lastReport);
-        } catch (error) {
-          console.error('Failed to load last report:', error);
-          lastReport = undefined;
+        } else {
+          console.log('No previous report file found.');
           resolve(lastReport);
         }
-      } else {
-        console.log('No previous report file found.');
+      } catch (error) {        
+        console.error('Failed to load last report:', error);
+        logError(error);
+        lastReport = undefined;
         resolve(lastReport);
       }
     });
