@@ -53,9 +53,11 @@ You can track more mappers by adding mapperIds to the `mapperIdsToTrack` propert
 
 You can run this within a Docker container with this command:
 
-`docker run -p 3000:3000 check-map-plays`
+`docker run -d -p 3000:3000 check-map-plays`
 
-Note that you will still have to run `npm start` to set the mapperId from the command line from within the container. 
+Note that you will still have to run `npm start` to set the mapperId from the command line from within the container before viewing reports from the server. 
+
+`docker exec -it containername /bin/bash`
 
 ## Limitations
 
