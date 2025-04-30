@@ -51,13 +51,22 @@ You can track more mappers by adding mapperIds to the `mapperIdsToTrack` propert
 
 ### Running in Docker
 
-You can run this within a Docker container with this command:
+Alternatively you can just grab the image from Docker Hub and fire up the web server like this (use whatever host port you want, but the container port must be 3000):
 
-`docker run -d -p 3000:3000 check-map-plays`
+```
+docker pull bradyep/check-map-plays
+docker run -d -p 127.0.0.1:4000:3000 -it bradyep/check-map-plays
+```
 
 Note that you will still have to run `npm start` to set the mapperId from the command line from within the container before viewing reports from the server. 
 
-`docker exec -it containername /bin/bash`
+```
+docker exec -it containername /bin/bash
+npm run start
+```
+
+Once that's done you should be able to access the report at http://localhost:4000/report
+
 
 ## Limitations
 
